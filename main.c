@@ -20,18 +20,20 @@ ari_play(const char *filename)
 }
 
 void
-ari_add_key(int keycode, int is_down, int is_mouse)
+ari_add_key(int keycode, int is_down)
 {
 
-	if (is_mouse || keycode > 256)
-		return;
+	if (keycode <= 0 || keycode > 256)
+    return;
 
 	const char *wav = wav_filelist[keycode * 2 + is_down];
-	ari_log("file: %s", wav);
+  ari_log("\ncode:  %02x hex: %02x ", keycode, keycode);
+	ari_log("file: %s\t idx %d", wav, keycode * 2 + is_down);
 	ari_play(wav);
 }
 
-int last_key = 0;
+int counter = 0;
+
 void
 ari_key_pressed_cb(XPointer arg, XRecordInterceptData *d)
 {
@@ -42,14 +44,17 @@ ari_key_pressed_cb(XPointer arg, XRecordInterceptData *d)
 	int type = ((unsigned char *)d->data)[0] & 0x7F;
 	int repeat = d->data[2] & 1;
 
-	int is_down = type == 2;
-	int is_mouse = (key - 8) < 0;
-
-	if (!repeat) {
-		ari_add_key(key, is_down, is_mouse);
-		ari_log("\ncode:  %02x hex: %02x ", key, key);
-	}
+	int is_down = type == KeyRelease || type == ButtonRelease;
+  int is_mouse_move = (key - 8) == 0;
+  if (repeat && counter % 3 == 0) {
+    repeat = 0;
+  }
+  if (!is_mouse_move && !repeat) {
+		ari_add_key(key, is_down);
+  }
+  counter++;
 	XRecordFreeData(d);
+
 }
 
 void
