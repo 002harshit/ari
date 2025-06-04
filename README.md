@@ -5,6 +5,6 @@
 
 # Todo
 
-- [ ] Play audio on mouse buttons
-- [ ] Incomplete wav files for some keys
+- [x] Play audio on mouse buttons
+- [x] Incomplete wav files for some keys
 - [ ] handle cl args
